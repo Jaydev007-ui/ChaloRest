@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #17191C;
+  --foreground: #F7F7F4;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Highway Stripes Pattern */
+.highway-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 201, 40, 0.05),
+    rgba(255, 201, 40, 0.05) 15px,
+    transparent 15px,
+    transparent 30px
+  );
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #101214;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D333B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF8A24;
+}
