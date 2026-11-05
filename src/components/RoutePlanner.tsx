@@ -40,6 +40,9 @@ export const RoutePlanner: React.FC<RoutePlannerProps> = ({
     { from: 'Mumbai', to: 'Nagpur', highway: 'Samruddhi Mahamarg', distanceKm: 701, avgDriveHours: '8-9h' },
     { from: 'Delhi', to: 'Chandigarh', highway: 'NH 44 (GT Road)', distanceKm: 245, avgDriveHours: '4.5h' },
     { from: 'Chennai', to: 'Vijayawada', highway: 'NH 16', distanceKm: 450, avgDriveHours: '7.5h' },
+    { from: 'Bengaluru', to: 'Chennai', highway: 'NH 44 (Hosur-Electronic City)', distanceKm: 345, avgDriveHours: '5.5h' },
+    { from: 'Bengaluru', to: 'Mysuru', highway: 'NH 275 (Bengaluru-Mysuru Exp)', distanceKm: 145, avgDriveHours: '2h' },
+    { from: 'Bengaluru', to: 'Hyderabad', highway: 'NH 44 (Airport Corridor)', distanceKm: 570, avgDriveHours: '9h' },
     { from: 'Bengaluru', to: 'Pune', highway: 'NH 48', distanceKm: 840, avgDriveHours: '14-16h' },
     { from: 'Salem', to: 'Kochi', highway: 'NH 544', distanceKm: 360, avgDriveHours: '6.5h' },
     { from: 'Pune', to: 'Hyderabad', highway: 'NH 65', distanceKm: 560, avgDriveHours: '10h' },
@@ -85,8 +88,16 @@ export const RoutePlanner: React.FC<RoutePlannerProps> = ({
     if (destLower.includes('kochi') || origLower.includes('salem') || destLower.includes('coimbatore')) {
       return p.highway.includes('NH 544') || cityLower.includes('coimbatore');
     }
-    if (origLower.includes('bengaluru') || destLower.includes('bengaluru')) {
-      return p.highway.includes('NH 48') || cityLower.includes('tumakuru');
+    if (origLower.includes('bengaluru') || destLower.includes('bengaluru') || origLower.includes('bangalore') || destLower.includes('bangalore')) {
+      return (
+        p.city.toLowerCase().includes('bengaluru') ||
+        p.city.toLowerCase().includes('bangalore') ||
+        p.address.toLowerCase().includes('bengaluru') ||
+        p.highway.includes('NH 44') ||
+        p.highway.includes('NH 48') ||
+        p.highway.includes('NH 275') ||
+        cityLower.includes('tumakuru')
+      );
     }
     return true;
   });

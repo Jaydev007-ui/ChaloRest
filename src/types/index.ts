@@ -111,6 +111,7 @@ export interface Property {
   attachedBathrooms: boolean;
   hotWater24x7: boolean;
   acRoomsAvailable: boolean;
+  nonAcRoomsAvailable?: boolean;
   luggageLockers: boolean;
   chargingPointAtBed: boolean;
   readingLightAtBed: boolean;
