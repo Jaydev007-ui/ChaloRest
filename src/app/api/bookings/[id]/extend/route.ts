@@ -8,7 +8,8 @@ export async function POST(
   try {
     const body = await request.json();
     const hours = Number(body.additionalHours) || 1;
-    const result = extendBooking(params.id, hours);
+    const paymentMethod = body.paymentMethod || 'UPI / Instant One-Click';
+    const result = extendBooking(params.id, hours, paymentMethod);
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 });

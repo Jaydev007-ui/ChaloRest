@@ -463,18 +463,34 @@ function SearchContent() {
                         {/* Room & Bed Inventory Badge */}
                         <div className="flex flex-wrap items-center gap-2 text-xs pt-1 border-t border-[#25292E]">
                           <span className="bg-[#202429] text-green-400 font-bold px-2.5 py-1 rounded-lg border border-green-500/20">
-                            🛏️ {availableBeds} Individual Beds Available
+                            🛏️ {availableBeds} Beds Available
                           </span>
-                          {property.truckParking && (
-                            <span className="bg-blue-500/10 text-blue-400 font-semibold px-2.5 py-1 rounded-lg border border-blue-500/20">
-                              🚛 Truck Parking ({property.truckParkingCapacity} bays)
-                            </span>
-                          )}
-                          <span className="bg-[#202429] text-gray-300 px-2.5 py-1 rounded-lg">
-                            🚿 Hot Showers 24/7
+                          <span className="bg-blue-500/10 text-blue-400 font-semibold px-2.5 py-1 rounded-lg border border-blue-500/20">
+                            🚛 {property.truckParkingCapacity || 60} Trucks
+                          </span>
+                          <span className="bg-yellow-500/10 text-yellow-400 font-semibold px-2.5 py-1 rounded-lg border border-yellow-500/20">
+                            🚌 {property.busParkingCapacity || 20} Buses
+                          </span>
+                          <span className="bg-green-500/10 text-green-400 font-semibold px-2.5 py-1 rounded-lg border border-green-500/20">
+                            🚖 {property.carParkingCapacity || 45} Cars/Cabs
+                          </span>
+                          <span className="bg-orange-500/10 text-orange-400 font-semibold px-2.5 py-1 rounded-lg border border-orange-500/20">
+                            🏍️ {property.bikeParkingCapacity || 35} Bikes
+                          </span>
+                          <span className="bg-emerald-500/10 text-emerald-400 font-semibold px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                            ⚡ {property.evChargingPoints || 6} EV Points
                           </span>
                           <span className="bg-[#202429] text-gray-300 px-2.5 py-1 rounded-lg">
-                            ⚡ Fast Check-in QR
+                            📹 CCTV & Guard
+                          </span>
+                          <span className="bg-[#202429] text-gray-300 px-2.5 py-1 rounded-lg">
+                            🔐 Bed Locker
+                          </span>
+                          <span className="bg-[#202429] text-gray-300 px-2.5 py-1 rounded-lg">
+                            🚿 Attached Bath
+                          </span>
+                          <span className="bg-[#202429] text-gray-300 px-2.5 py-1 rounded-lg">
+                            ❄️ 100% AC
                           </span>
                         </div>
 

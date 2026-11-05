@@ -19,7 +19,7 @@ export default function BookingsHistoryPage() {
   const allBookings = store.bookings;
 
   const filtered = allBookings.filter((b) => {
-    if (filter === 'ACTIVE') return b.status === 'CHECKED_IN' || b.status === 'CONFIRMED';
+    if (filter === 'ACTIVE') return b.status === 'CHECKED_IN' || b.status === 'CONFIRMED' || b.status === 'EXTENDED';
     if (filter === 'COMPLETED') return b.status === 'COMPLETED';
     return true;
   });
@@ -131,12 +131,12 @@ export default function BookingsHistoryPage() {
                   <span>Invoice</span>
                 </button>
 
-                {b.status === 'CHECKED_IN' && (
+                {(b.status === 'CHECKED_IN' || b.status === 'EXTENDED' || b.status === 'CONFIRMED') && (
                   <Link
                     href="/dashboard/active-stay"
                     className="bg-highway-orange hover:bg-highway-orange-hover text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow"
                   >
-                    Active Timer
+                    Active Stay / Extend
                   </Link>
                 )}
               </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { store } from '@/lib/store';
+import { store, extendBooking } from '@/lib/store';
 import { ActiveStayTimer } from '@/components/ActiveStayTimer';
 import { 
   Clock, 
@@ -24,7 +24,9 @@ import {
 export default function UserDashboard() {
   const user = store.currentUser;
   const bookings = store.bookings;
-  const activeBooking = bookings.find(b => b.status === 'CHECKED_IN' || b.status === 'CONFIRMED');
+  const [activeBooking, setActiveBooking] = useState(() => 
+    bookings.find(b => b.status === 'CHECKED_IN' || b.status === 'CONFIRMED' || b.status === 'EXTENDED')
+  );
 
   const totalHoursRested = bookings
     .filter(b => b.status === 'COMPLETED' || b.status === 'CHECKED_IN')
@@ -104,14 +106,27 @@ export default function UserDashboard() {
         <div>
           <ActiveStayTimer
             booking={activeBooking}
-            onExtend={async (hours) => {
-              const res = await fetch(`/api/bookings/${activeBooking.id}/extend`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ additionalHours: hours }),
-              });
-              const data = await res.json();
-              return data.success;
+            onExtend={async (hours, paymentMethod) => {
+              try {
+                const res = await fetch(`/api/bookings/${activeBooking.id}/extend`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ additionalHours: hours, paymentMethod }),
+                });
+                const data = await res.json();
+                if (data.success && data.booking) {
+                  setActiveBooking({ ...data.booking });
+                  return true;
+                }
+              } catch (e) {
+                // fallback below
+              }
+              const fallback = extendBooking(activeBooking.id, hours, paymentMethod);
+              if (fallback.success && fallback.booking) {
+                setActiveBooking({ ...fallback.booking });
+                return true;
+              }
+              return false;
             }}
           />
         </div>

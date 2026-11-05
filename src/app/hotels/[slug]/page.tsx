@@ -176,37 +176,156 @@ export default function HotelDetailsPage({ params }: { params: { slug: string } 
             </div>
           </div>
 
-          {/* Amenities & Facility Badges */}
+          {/* ALL VEHICLE PARKING SECTION */}
           <div className="bg-[#181B1F] border border-[#2B3037] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
-            <h3 className="text-lg font-black text-white">Key Highway Facilities</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black text-white flex items-center">
+                <Truck className="w-5 h-5 mr-2 text-highway-orange" />
+                <span>Dedicated Parking for ALL Vehicle Types</span>
+              </h3>
+              <span className="text-[11px] font-bold bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-full">
+                ✓ 24/7 Guarded & Gated
+              </span>
+            </div>
+            <p className="text-xs text-gray-400">
+              Spacious, paved, and illuminated parking bays engineered for safe maneuverability of commercial and private transport.
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              {property.truckParking && (
-                <div className="bg-[#202429] p-3 rounded-xl border border-blue-500/20 text-blue-300 flex items-center">
-                  <Truck className="w-4 h-4 mr-2 text-blue-400" />
-                  <span>Heavy Truck Parking ({property.truckParkingCapacity} bays)</span>
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-blue-500/30 text-blue-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">🚛</span>
+                  <span className="font-bold text-white">Heavy Trucks</span>
                 </div>
-              )}
-              {property.cctvSecured && (
-                <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-300 flex items-center">
-                  <ShieldCheck className="w-4 h-4 mr-2 text-green-400" />
-                  <span>24/7 CCTV & Security</span>
+                <span className="text-[11px] text-gray-400">{property.truckParkingCapacity || 60}+ Multi-Axle Trailer Bays</span>
+              </div>
+
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-yellow-500/30 text-yellow-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">🚌</span>
+                  <span className="font-bold text-white">Buses & Coaches</span>
                 </div>
-              )}
-              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-300 flex items-center">
-                <span>🚿</span>
-                <span className="ml-2">Hot Water High Pressure Shower</span>
+                <span className="text-[11px] text-gray-400">{property.busParkingCapacity || 20}+ Volvo & Sleeper Bays</span>
               </div>
-              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-300 flex items-center">
-                <span>❄️</span>
-                <span className="ml-2">Air-Conditioned Resting Dorms</span>
+
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-green-500/30 text-green-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">🚖</span>
+                  <span className="font-bold text-white">Cabs & Private Cars</span>
+                </div>
+                <span className="text-[11px] text-gray-400">{property.carParkingCapacity || 45}+ Paved Sedan/SUV Slots</span>
               </div>
-              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-300 flex items-center">
-                <span>💧</span>
-                <span className="ml-2">RO Pure Drinking Water</span>
+
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-orange-500/30 text-orange-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">🏍️</span>
+                  <span className="font-bold text-white">Bikes & Motorcycles</span>
+                </div>
+                <span className="text-[11px] text-gray-400">{property.bikeParkingCapacity || 35}+ Covered Motorcycle Slots</span>
               </div>
-              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-300 flex items-center">
-                <span>🍲</span>
-                <span className="ml-2">Pure Veg Highway Canteen</span>
+
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-emerald-500/30 text-emerald-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">⚡</span>
+                  <span className="font-bold text-white">EV Fast Charging</span>
+                </div>
+                <span className="text-[11px] text-gray-400">{property.evChargingPoints || 6} Rapid DC Fast Plugs</span>
+              </div>
+
+              <div className="bg-[#202429] p-3.5 rounded-2xl border border-purple-500/30 text-purple-300 flex flex-col justify-between">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-base">🚚</span>
+                  <span className="font-bold text-white">Delivery Vans</span>
+                </div>
+                <span className="text-[11px] text-gray-400">Loading Bays & Pickup Rest</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ACTIVE AMENITIES & SECURITY IN ALL SHARED ROOMS */}
+          <div className="bg-[#181B1F] border border-[#2B3037] rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black text-white flex items-center">
+                <ShieldCheck className="w-5 h-5 mr-2 text-green-400" />
+                <span>Active Amenities & Security in All Shared Rooms</span>
+              </h3>
+              <span className="text-[11px] font-bold bg-road-yellow/10 text-road-yellow border border-road-yellow/30 px-2.5 py-1 rounded-full">
+                100% Active in All Pods
+              </span>
+            </div>
+            <p className="text-xs text-gray-400">
+              Every 4-bed and 8-bed shared room is fully equipped with certified personal safety and hygiene amenities.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">📹</span>
+                <div>
+                  <div className="font-bold text-white">24/7 CCTV & Guard</div>
+                  <div className="text-[10px] text-gray-400">Constant premise patrol</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">🔐</span>
+                <div>
+                  <div className="font-bold text-white">Personal Bed Locker</div>
+                  <div className="text-[10px] text-gray-400">Steel locker per bunk</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">🚿</span>
+                <div>
+                  <div className="font-bold text-white">Attached Hot Bath</div>
+                  <div className="text-[10px] text-gray-400">24/7 high-pressure water</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">❄️</span>
+                <div>
+                  <div className="font-bold text-white">Powerful AC</div>
+                  <div className="text-[10px] text-gray-400">Chilled & well-ventilated</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">🔌</span>
+                <div>
+                  <div className="font-bold text-white">Bedside Charging</div>
+                  <div className="text-[10px] text-gray-400">Individual socket & USB</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">🛏️</span>
+                <div>
+                  <div className="font-bold text-white">Fresh Sanitized Kit</div>
+                  <div className="text-[10px] text-gray-400">Clean sheets per guest</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">💡</span>
+                <div>
+                  <div className="font-bold text-white">Reading Light</div>
+                  <div className="text-[10px] text-gray-400">Independent night lamp</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">💧</span>
+                <div>
+                  <div className="font-bold text-white">RO Mineral Water</div>
+                  <div className="text-[10px] text-gray-400">Free unlimited cold/warm</div>
+                </div>
+              </div>
+
+              <div className="bg-[#202429] p-3 rounded-xl border border-gray-800 text-gray-200 flex items-center space-x-2.5">
+                <span className="text-lg">🚨</span>
+                <div>
+                  <div className="font-bold text-white">Emergency SOS</div>
+                  <div className="text-[10px] text-gray-400">Instant front-desk alert</div>
+                </div>
               </div>
             </div>
           </div>

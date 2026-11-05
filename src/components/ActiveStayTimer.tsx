@@ -13,20 +13,30 @@ import {
   AlertTriangle,
   PhoneCall,
   Bed,
-  RefreshCw
+  RefreshCw,
+  Zap,
+  CreditCard,
+  Building2,
+  DollarSign
 } from 'lucide-react';
 
 interface ActiveStayTimerProps {
   booking: Booking;
-  onExtend?: (hours: number) => Promise<boolean>;
+  onExtend?: (hours: number, paymentMethod?: string) => Promise<boolean>;
   onCheckOut?: () => Promise<boolean>;
 }
 
 export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
-  booking,
+  booking: initialBooking,
   onExtend,
   onCheckOut,
 }) => {
+  const [booking, setBooking] = useState<Booking>(initialBooking);
+
+  useEffect(() => {
+    setBooking(initialBooking);
+  }, [initialBooking]);
+
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; isExpired: boolean }>({
     hours: 0,
     minutes: 0,
@@ -37,6 +47,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
   const [showQRModal, setShowQRModal] = useState<boolean>(false);
   const [showExtendModal, setShowExtendModal] = useState<boolean>(false);
   const [extendHours, setExtendHours] = useState<number>(1);
+  const [extendPaymentMethod, setExtendPaymentMethod] = useState<'UPI_INSTANT' | 'CARD' | 'FLEET' | 'RECEPTION'>('UPI_INSTANT');
   const [isExtending, setIsExtending] = useState<boolean>(false);
   const [extendError, setExtendError] = useState<string | null>(null);
   const [extendSuccess, setExtendSuccess] = useState<string | null>(null);
@@ -74,14 +85,44 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
     setExtendError(null);
     setExtendSuccess(null);
     try {
+      let methodLabel = 'UPI 1-Click FastPass';
+      if (extendPaymentMethod === 'CARD') methodLabel = 'RuPay / Debit Card';
+      if (extendPaymentMethod === 'FLEET') methodLabel = 'Corporate Fleet Allowance';
+      if (extendPaymentMethod === 'RECEPTION') methodLabel = 'Pay at Reception Desk';
+
       if (onExtend) {
-        const ok = await onExtend(extendHours);
+        const ok = await onExtend(extendHours, methodLabel);
         if (ok) {
-          setExtendSuccess(`Stay successfully extended by ${extendHours} hour(s)!`);
-          setTimeout(() => setShowExtendModal(false), 1500);
+          const newCheckOut = new Date(new Date(booking.scheduledCheckOut).getTime() + extendHours * 60 * 60 * 1000);
+          setBooking(prev => ({
+            ...prev,
+            durationHours: prev.durationHours + extendHours,
+            scheduledCheckOut: newCheckOut.toISOString(),
+            status: 'EXTENDED',
+          }));
+
+          setExtendSuccess(`Stay successfully extended by ${extendHours} hour(s)! New check-out time is ${newCheckOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`);
+          setTimeout(() => {
+            setShowExtendModal(false);
+            setExtendSuccess(null);
+          }, 1800);
         } else {
           setExtendError(`Extension unavailable. Bed ${booking.bedNumber} has an upcoming reservation.`);
         }
+      } else {
+        // Direct simulation
+        const newCheckOut = new Date(new Date(booking.scheduledCheckOut).getTime() + extendHours * 60 * 60 * 1000);
+        setBooking(prev => ({
+          ...prev,
+          durationHours: prev.durationHours + extendHours,
+          scheduledCheckOut: newCheckOut.toISOString(),
+          status: 'EXTENDED',
+        }));
+        setExtendSuccess(`Stay extended by ${extendHours} hour(s)!`);
+        setTimeout(() => {
+          setShowExtendModal(false);
+          setExtendSuccess(null);
+        }, 1800);
       }
     } catch (e: any) {
       setExtendError(e?.message || 'Error processing extension');
@@ -89,6 +130,10 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
       setIsExtending(false);
     }
   };
+
+  const calculatedNewCheckOut = new Date(
+    new Date(booking.scheduledCheckOut).getTime() + extendHours * 60 * 60 * 1000
+  );
 
   return (
     <div className="bg-[#181B1F] border border-green-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
@@ -125,7 +170,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
         <div className="flex items-center space-x-2 bg-[#202429] border border-[#2D333B] px-4 py-2.5 rounded-xl">
           <Bed className="w-5 h-5 text-road-yellow" />
           <div>
-            <p className="text-[11px] text-gray-400 font-medium">Reserved Resting Bed</p>
+            <p className="text-[11px] text-gray-400 font-medium">Reserved Bed</p>
             <p className="text-sm font-black text-white font-mono">{booking.bedNumber} ({booking.roomName})</p>
           </div>
         </div>
@@ -176,8 +221,9 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
               style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
-          <div className="flex justify-between text-[11px] text-gray-500 mt-2 font-mono">
+          <div className="flex justify-between text-[11px] text-gray-400 mt-2 font-mono">
             <span>Check-in: {new Date(booking.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Total Duration: {booking.durationHours} Hours</span>
             <span>Check-out: {new Date(booking.scheduledCheckOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
@@ -192,7 +238,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
           className="flex items-center justify-center space-x-2 bg-[#202429] hover:bg-[#282E35] border border-gray-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all"
         >
           <QrCode className="w-4 h-4 text-highway-orange" />
-          <span>SHOW CHECK-IN QR</span>
+          <span>SHOW FASTPASS QR</span>
         </button>
 
         {/* Extend Stay Button */}
@@ -202,7 +248,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
           className="flex items-center justify-center space-x-2 bg-gradient-to-r from-highway-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-lg shadow-highway-orange/20 transition-all"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>EXTEND MY STAY (+HOURLY)</span>
+          <span>EXTEND STAY (+HOURLY)</span>
         </button>
 
         {/* Reception / SOS */}
@@ -219,48 +265,38 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
       {showQRModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="bg-[#17191C] border border-[#2B3037] rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-            <h4 className="text-lg font-black text-white">ChaloRest Fast Pass</h4>
+            <h4 className="text-lg font-black text-white">ChaloRest FastPass</h4>
             <p className="text-xs text-gray-400">Present this QR to hotel staff at desk for 10-second check-in or checkout.</p>
 
-            {/* Visual SVG QR Representation */}
-            <div className="bg-white p-5 rounded-2xl inline-block mx-auto shadow-xl">
+            <div className="bg-white p-5 rounded-2xl inline-block mx-auto shadow-xl relative">
               <svg className="w-44 h-44" viewBox="0 0 100 100" fill="none">
                 <rect width="100" height="100" fill="white" />
-                {/* QR Pattern simulated with authentic dark modules */}
                 <rect x="5" y="5" width="25" height="25" fill="#17191C" />
                 <rect x="9" y="9" width="17" height="17" fill="white" />
                 <rect x="13" y="13" width="9" height="9" fill="#17191C" />
-
                 <rect x="70" y="5" width="25" height="25" fill="#17191C" />
                 <rect x="74" y="9" width="17" height="17" fill="white" />
                 <rect x="78" y="13" width="9" height="9" fill="#17191C" />
-
                 <rect x="5" y="70" width="25" height="25" fill="#17191C" />
                 <rect x="9" y="74" width="17" height="17" fill="white" />
                 <rect x="13" y="78" width="9" height="9" fill="#17191C" />
-
-                {/* Data modules */}
                 <rect x="35" y="8" width="8" height="8" fill="#17191C" />
                 <rect x="47" y="8" width="8" height="8" fill="#FF8A24" />
                 <rect x="35" y="20" width="12" height="6" fill="#17191C" />
                 <rect x="52" y="20" width="12" height="6" fill="#17191C" />
-
                 <rect x="8" y="35" width="12" height="8" fill="#17191C" />
                 <rect x="25" y="35" width="10" height="10" fill="#17191C" />
                 <rect x="40" y="35" width="20" height="10" fill="#17191C" />
                 <rect x="65" y="35" width="12" height="12" fill="#17191C" />
                 <rect x="82" y="35" width="10" height="8" fill="#17191C" />
-
                 <rect x="8" y="50" width="15" height="12" fill="#17191C" />
                 <rect x="30" y="50" width="10" height="10" fill="#17191C" />
                 <rect x="45" y="48" width="10" height="10" fill="#FF8A24" />
                 <rect x="60" y="52" width="15" height="8" fill="#17191C" />
                 <rect x="80" y="50" width="12" height="12" fill="#17191C" />
-
                 <rect x="35" y="65" width="15" height="12" fill="#17191C" />
                 <rect x="55" y="65" width="15" height="12" fill="#17191C" />
                 <rect x="75" y="68" width="18" height="10" fill="#17191C" />
-
                 <rect x="35" y="82" width="25" height="10" fill="#17191C" />
                 <rect x="65" y="82" width="12" height="10" fill="#FF8A24" />
                 <rect x="82" y="82" width="10" height="10" fill="#17191C" />
@@ -271,6 +307,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
               <p className="text-gray-400">Token: <span className="text-road-yellow">{booking.qrToken}</span></p>
               <p className="text-gray-400">Guest: <span className="text-white">{booking.userName}</span></p>
               <p className="text-gray-400">Bed: <span className="text-white font-bold">{booking.bedNumber}</span></p>
+              <p className="text-gray-400">Status: <span className="text-green-400 font-bold">{booking.status}</span></p>
             </div>
 
             <button
@@ -284,14 +321,14 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
         </div>
       )}
 
-      {/* Stay Extension Modal */}
+      {/* Active Stay Extension Modal */}
       {showExtendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#17191C] border border-[#2B3037] rounded-3xl max-w-md w-full p-6 text-left space-y-4 shadow-2xl">
+          <div className="bg-[#17191C] border border-[#2B3037] rounded-3xl max-w-lg w-full p-6 text-left space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#25292E] pb-3">
               <h4 className="text-lg font-black text-white flex items-center">
                 <PlusCircle className="w-5 h-5 mr-2 text-highway-orange" />
-                Extend Your Stay
+                Extend Your Rest Hours
               </h4>
               <button
                 onClick={() => setShowExtendModal(false)}
@@ -302,49 +339,105 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
             </div>
 
             <p className="text-xs text-gray-400">
-              Need more sleep before getting back behind the wheel? Extend your stay in {booking.bedNumber}. We verify live availability to prevent booking conflicts.
+              Need more sleep before resuming your highway journey? Select extra rest hours for {booking.bedNumber}. We verify real-time bed schedules to guarantee zero overlapping conflict.
             </p>
 
+            {/* Hour Selector Buttons */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-300">Select Extension Duration:</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[1, 2, 4].map((hrs) => (
+              <label className="text-xs font-bold text-gray-300">Choose Additional Rest Duration:</label>
+              <div className="grid grid-cols-4 gap-2">
+                {[1, 2, 3, 4].map((hrs) => (
                   <button
                     key={hrs}
                     type="button"
                     onClick={() => setExtendHours(hrs)}
                     className={`py-3 px-2 rounded-xl border text-center transition-all ${
                       extendHours === hrs
-                        ? 'bg-highway-orange text-white border-highway-orange font-bold shadow-md'
+                        ? 'bg-highway-orange text-white border-highway-orange font-bold shadow-md ring-2 ring-highway-orange/40'
                         : 'bg-[#202429] text-gray-300 border-[#2D333B] hover:border-gray-600'
                     }`}
                   >
-                    <p className="text-sm font-black">+{hrs} Hour{hrs > 1 ? 's' : ''}</p>
+                    <p className="text-sm font-black">+{hrs} Hr{hrs > 1 ? 's' : ''}</p>
                     <p className="text-[10px] opacity-80 font-mono mt-0.5">
-                      +₹{booking.hourlyRate * hrs}
+                      +₹{Math.round(booking.hourlyRate * hrs * 1.12)}
                     </p>
                   </button>
                 ))}
               </div>
             </div>
 
+            {/* Time Comparison Card */}
+            <div className="bg-[#131618] border border-gray-800 p-3 rounded-2xl flex items-center justify-between text-xs font-mono">
+              <div>
+                <span className="text-gray-500 block text-[10px] uppercase">Current Check-out</span>
+                <span className="text-gray-300 font-bold">
+                  {new Date(booking.scheduledCheckOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              <span className="text-highway-orange font-bold text-lg">➔</span>
+              <div className="text-right">
+                <span className="text-green-400 block text-[10px] uppercase font-bold">Extended Check-out</span>
+                <span className="text-road-yellow font-black text-sm">
+                  {calculatedNewCheckOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+
+            {/* Payment Method Selector for Extension */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-300">Payment Method for Extension:</label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setExtendPaymentMethod('UPI_INSTANT')}
+                  className={`p-2.5 rounded-xl border text-left flex items-center justify-between ${
+                    extendPaymentMethod === 'UPI_INSTANT'
+                      ? 'bg-highway-orange/20 border-highway-orange text-white font-bold'
+                      : 'bg-[#202429] border-gray-800 text-gray-400'
+                  }`}
+                >
+                  <div>
+                    <p className="text-xs">Instant 1-Click UPI</p>
+                    <p className="text-[9px] text-gray-400">Zero wait authorization</p>
+                  </div>
+                  <Zap className="w-4 h-4 text-road-yellow" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setExtendPaymentMethod('FLEET')}
+                  className={`p-2.5 rounded-xl border text-left flex items-center justify-between ${
+                    extendPaymentMethod === 'FLEET'
+                      ? 'bg-highway-orange/20 border-highway-orange text-white font-bold'
+                      : 'bg-[#202429] border-gray-800 text-gray-400'
+                  }`}
+                >
+                  <div>
+                    <p className="text-xs">Corporate Fleet</p>
+                    <p className="text-[9px] text-gray-400">Billed to transport</p>
+                  </div>
+                  <Building2 className="w-4 h-4 text-green-400" />
+                </button>
+              </div>
+            </div>
+
             {/* Pricing breakdown */}
             <div className="bg-[#1F2328] p-3.5 rounded-xl border border-gray-800 text-xs space-y-1">
               <div className="flex justify-between text-gray-400">
-                <span>Hourly Rate ({booking.bedNumber}):</span>
+                <span>Tariff Rate ({booking.bedNumber}):</span>
                 <span>₹{booking.hourlyRate}/hr</span>
               </div>
               <div className="flex justify-between text-gray-400">
                 <span>Additional Duration:</span>
-                <span>{extendHours} Hour(s)</span>
+                <span className="text-white font-bold">{extendHours} Hour(s)</span>
               </div>
               <div className="flex justify-between text-gray-400">
                 <span>GST (12%):</span>
                 <span>₹{(booking.hourlyRate * extendHours * 0.12).toFixed(1)}</span>
               </div>
               <div className="border-t border-gray-700 pt-1.5 flex justify-between font-bold text-white text-sm">
-                <span>Total Amount to Pay:</span>
-                <span className="text-road-yellow font-mono">
+                <span>Extension Total:</span>
+                <span className="text-road-yellow font-mono text-base">
                   ₹{Math.round(booking.hourlyRate * extendHours * 1.12)}
                 </span>
               </div>
@@ -368,7 +461,7 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
               <button
                 type="button"
                 onClick={() => setShowExtendModal(false)}
-                className="w-1/2 bg-[#202429] hover:bg-[#282E35] text-gray-300 font-bold text-xs py-3 rounded-xl"
+                className="w-1/3 bg-[#202429] hover:bg-[#282E35] text-gray-300 font-bold text-xs py-3 rounded-xl"
               >
                 Cancel
               </button>
@@ -376,12 +469,15 @@ export const ActiveStayTimer: React.FC<ActiveStayTimerProps> = ({
                 type="button"
                 disabled={isExtending}
                 onClick={handleConfirmExtension}
-                className="w-1/2 bg-highway-orange hover:bg-highway-orange-hover text-white font-black text-xs py-3 rounded-xl shadow-lg shadow-highway-orange/20 transition-all flex items-center justify-center space-x-1"
+                className="w-2/3 bg-gradient-to-r from-highway-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 text-white font-black text-xs py-3 rounded-xl shadow-lg shadow-highway-orange/20 transition-all flex items-center justify-center space-x-2"
               >
                 {isExtending ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Bed & Payment...</span>
+                  </>
                 ) : (
-                  <span>PAY & CONFIRM EXTENSION</span>
+                  <span>PAY & EXTEND REST (+{extendHours}H)</span>
                 )}
               </button>
             </div>

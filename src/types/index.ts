@@ -90,15 +90,31 @@ export interface Property {
   isPublished: boolean;
   isDemoListing?: boolean;
   
-  // Facilities
+  // Facilities & Parking for ALL Vehicle Types
   truckParking: boolean;
   truckParkingCapacity?: number;
+  busParking: boolean;
+  busParkingCapacity?: number;
+  carParking: boolean;
+  carParkingCapacity?: number;
+  bikeParking: boolean;
+  bikeParkingCapacity?: number;
+  evChargingAvailable: boolean;
+  evChargingPoints?: number;
   generalParking: boolean;
+
+  // Active Security & Room Amenities
   cctvSecured: boolean;
+  securityGuard24x7: boolean;
+  sosEmergencyButton: boolean;
   cleanWashrooms: boolean;
   attachedBathrooms: boolean;
   hotWater24x7: boolean;
   acRoomsAvailable: boolean;
+  luggageLockers: boolean;
+  chargingPointAtBed: boolean;
+  readingLightAtBed: boolean;
+  linensSanitizedKit: boolean;
   foodAvailable: boolean;
   driverLounge: boolean;
   drinkingWaterRO: boolean;
