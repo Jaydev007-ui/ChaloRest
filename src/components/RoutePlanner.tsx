@@ -35,8 +35,14 @@ export const RoutePlanner: React.FC<RoutePlannerProps> = ({
   const popularRoutes = [
     { from: 'Ahmedabad', to: 'Mumbai', highway: 'NH 48', distanceKm: 530, avgDriveHours: '9-10h' },
     { from: 'Delhi', to: 'Jaipur', highway: 'NH 48', distanceKm: 270, avgDriveHours: '5h' },
+    { from: 'Delhi', to: 'Agra', highway: 'Yamuna Expressway', distanceKm: 210, avgDriveHours: '3.5h' },
     { from: 'Mumbai', to: 'Pune', highway: 'Mumbai-Pune Expressway', distanceKm: 150, avgDriveHours: '3h' },
+    { from: 'Mumbai', to: 'Nagpur', highway: 'Samruddhi Mahamarg', distanceKm: 701, avgDriveHours: '8-9h' },
+    { from: 'Delhi', to: 'Chandigarh', highway: 'NH 44 (GT Road)', distanceKm: 245, avgDriveHours: '4.5h' },
+    { from: 'Chennai', to: 'Vijayawada', highway: 'NH 16', distanceKm: 450, avgDriveHours: '7.5h' },
     { from: 'Bengaluru', to: 'Pune', highway: 'NH 48', distanceKm: 840, avgDriveHours: '14-16h' },
+    { from: 'Salem', to: 'Kochi', highway: 'NH 544', distanceKm: 360, avgDriveHours: '6.5h' },
+    { from: 'Pune', to: 'Hyderabad', highway: 'NH 65', distanceKm: 560, avgDriveHours: '10h' },
   ];
 
   const handleQuickRoute = (route: typeof popularRoutes[0]) => {
@@ -55,11 +61,32 @@ export const RoutePlanner: React.FC<RoutePlannerProps> = ({
     if (origLower.includes('ahmedabad') || destLower.includes('mumbai')) {
       return p.highway.includes('NH 48') || cityLower.includes('bharuch') || cityLower.includes('manor');
     }
-    if (origLower.includes('delhi') || destLower.includes('jaipur')) {
+    if (origLower.includes('delhi') && (destLower.includes('jaipur') || destLower.includes('udaipur'))) {
       return p.highway.includes('Delhi') || cityLower.includes('neemrana') || cityLower.includes('udaipur');
+    }
+    if ((origLower.includes('delhi') || origLower.includes('noida')) && destLower.includes('agra')) {
+      return p.highway.toLowerCase().includes('yamuna') || cityLower.includes('mathura');
     }
     if (origLower.includes('mumbai') && destLower.includes('pune')) {
       return p.highway.includes('Expressway') || cityLower.includes('khalapur');
+    }
+    if (origLower.includes('mumbai') && destLower.includes('nagpur')) {
+      return p.highway.toLowerCase().includes('samruddhi') || cityLower.includes('shirdi');
+    }
+    if (origLower.includes('delhi') && (destLower.includes('chandigarh') || destLower.includes('amritsar'))) {
+      return p.highway.includes('NH 44') || cityLower.includes('ambala');
+    }
+    if (origLower.includes('chennai') || destLower.includes('vijayawada') || destLower.includes('kolkata')) {
+      return p.highway.includes('NH 16') || cityLower.includes('nellore');
+    }
+    if (origLower.includes('pune') && destLower.includes('hyderabad')) {
+      return p.highway.includes('NH 65') || cityLower.includes('hadapsar') || cityLower.includes('pune');
+    }
+    if (destLower.includes('kochi') || origLower.includes('salem') || destLower.includes('coimbatore')) {
+      return p.highway.includes('NH 544') || cityLower.includes('coimbatore');
+    }
+    if (origLower.includes('bengaluru') || destLower.includes('bengaluru')) {
+      return p.highway.includes('NH 48') || cityLower.includes('tumakuru');
     }
     return true;
   });
